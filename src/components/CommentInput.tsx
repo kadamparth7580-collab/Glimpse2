@@ -53,10 +53,17 @@ export default function CommentInput({
 
 async function send(content: string) {
   const trimmed = content.trim();
+
+  console.log("SENDING:", trimmed); // 👈 ADD THIS
+
   if (!trimmed || sending) return;
 
   setSending(true);
-  await onSubmit(trimmed);
+
+  const result = await onSubmit(trimmed);
+
+  console.log("DONE:", result); // 👈 ADD THIS
+
   setValue("");
   setShowMore(false);
   setSending(false);
