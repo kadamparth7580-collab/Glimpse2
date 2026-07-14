@@ -105,20 +105,20 @@ export default function CommentThread({
     setComments((prev) => [...prev, optimisticComment]);
 
     const { data, error } = await supabase
-      .from("comments")
-      .insert({ glimpse_id: glimpseId, user_id: currentUserId, content })
-      .select(
-        "id, glimpse_id, user_id, content, created_at, profiles ( id, display_name, created_at )"
-      )
-      .single();
+  .from("comments")
+  .insert({
+    glimpse_id: glimpseId,
+    user_id: currentUserId,
+    content,
+  })
+  .select("*")
+  .single();
 
-    if (!error && data) {
-      setComments((prev) =>
-        prev
-          .filter((c) => c.id !== optimisticComment.id)
-          .concat(data as unknown as Comment)
-      );
-    }
+if (error) {
+  console.error("❌ INSERT ERROR:", error);
+} else {
+  console.log("✅ INSERT SUCCESS:", data);
+}
   }
 
   return (
