@@ -131,21 +131,20 @@ async function send(content: string) {
         }}
         className="flex items-center gap-2"
       >
-        <input
-          value={value}
-          
-          placeholder="Say something…"
-          maxLength={500}
-          className="
-            flex-1 rounded-full border border-ink/10
-            bg-card px-4 py-3 text-sm shadow-soft
-            transition-all duration-200
-            focus:border-sage
-            focus:shadow-lg
-            focus:outline-none
-          "
-        />
-
+      <input
+  value={value}
+  onChange={(e) => setValue(e.target.value)}
+  placeholder="Say something…"
+  maxLength={500}
+  className="
+    flex-1 rounded-full border border-ink/10
+    bg-card px-4 py-3 text-sm shadow-soft
+    transition-all duration-200
+    focus:border-sage
+    focus:shadow-lg
+    focus:outline-none
+  "
+/>
         <button
           type="submit"
           disabled={sending || !value.trim()}
