@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  height: 100%;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background-color: #6b8f71;
+  color: #ffffff;
+}
+
+/* Slightly softer default focus ring that still meets a11y needs */
+:focus-visible {
+  outline: 2px solid #6b8f71;
+  outline-offset: 2px;
+}
