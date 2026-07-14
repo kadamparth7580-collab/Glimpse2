@@ -1,6 +1,10 @@
 export function formatPostedAt(dateString: string): string {
   const date = new Date(dateString);
-  return date.toLocaleTimeString(undefined, {
+
+  return date.toLocaleString("en-IN", {
+    timeZone: "Asia/Kolkata",
+    day: "numeric",
+    month: "short",
     hour: "numeric",
     minute: "2-digit",
   });
