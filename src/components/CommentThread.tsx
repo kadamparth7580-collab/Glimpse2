@@ -93,9 +93,10 @@ export default function CommentThread({
   async function handleSubmit(content: string) {
     if (!currentUserId) return;
 
-    // Optimistic insert so the sender sees it instantly.
+n    // Create an optimistic comment so the sender sees it instantly.
+    const optimisticId = `optimistic-${Date.now()}`;
     const optimisticComment: Comment = {
-      id: `optimistic-${Date.now()}`,
+      id: optimisticId,
       glimpse_id: glimpseId,
       user_id: currentUserId,
       content,
@@ -104,21 +105,45 @@ export default function CommentThread({
     };
     setComments((prev) => [...prev, optimisticComment]);
 
+    // Insert into the database and request the joined profile so the returned
+    // row matches the shape the thread expects when rendering.
     const { data, error } = await supabase
-  .from("comments")
-  .insert({
-    glimpse_id: glimpseId,
-    user_id: currentUserId,
-    content,
-  })
-  .select("*")
-  .single();
+      .from("comments")
+      .insert({
+        glimpse_id: glimpseId,
+        user_id: currentUserId,
+        content,
+      })
+      .select(
+        "id, glimpse_id, user_id, content, created_at, profiles ( id, display_name, created_at )"
+      )
+      .single();
 
-if (error) {
-  console.error("❌ INSERT ERROR:", error);
-} else {
-  console.log("✅ INSERT SUCCESS:", data);
-}
+    if (error) {
+      console.error("❌ INSERT ERROR:", error);
+      // Remove the optimistic comment on failure so the UI stays consistent.
+      setComments((prev) => prev.filter((c) => c.id !== optimisticId));
+      alert("Couldn't post comment. Please try again.");
+      return;
+    }
+
+n    if (data) {
+      // Replace the optimistic comment with the definitive server row. If the
+      // optimistic comment was already replaced by realtime, avoid duplication.
+      setComments((prev) => {
+        const alreadyHasServer = prev.some((c) => c.id === (data as Comment).id);
+        const hasOptimistic = prev.some((c) => c.id === optimisticId);
+        if (alreadyHasServer) {
+          // Remove any lingering optimistic entry if present.
+          return prev.filter((c) => c.id !== optimisticId);
+        }
+        if (hasOptimistic) {
+          return prev.map((c) => (c.id === optimisticId ? (data as Comment) : c));
+        }
+        // Fallback: append the returned comment.
+        return [...prev, data as Comment];
+      });
+    }
   }
 
   return (
