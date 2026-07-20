@@ -93,7 +93,7 @@ export default function CommentThread({
   async function handleSubmit(content: string) {
     if (!currentUserId) return;
 
-n    // Create an optimistic comment so the sender sees it instantly.
+    // Create an optimistic comment so the sender sees it instantly.
     const optimisticId = `optimistic-${Date.now()}`;
     const optimisticComment: Comment = {
       id: optimisticId,
@@ -127,7 +127,7 @@ n    // Create an optimistic comment so the sender sees it instantly.
       return;
     }
 
-n    if (data) {
+    if (data) {
       // Replace the optimistic comment with the definitive server row. If the
       // optimistic comment was already replaced by realtime, avoid duplication.
       setComments((prev) => {
