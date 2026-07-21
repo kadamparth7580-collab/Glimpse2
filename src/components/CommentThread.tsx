@@ -129,18 +129,38 @@ export default function CommentThread({
    if (data) {
      // Replace the optimistic comment with the definitive server row. If the
      // optimistic comment was already replaced by realtime, avoid duplication.
+     const insertedRow = data as unknown as {
+       id: string;
+       glimpse_id: string;
+       user_id: string;
+       content: string;
+       created_at: string;
+       profiles: Profile | Profile[] | null;
+     };
+
+     const serverComment: Comment = {
+       id: insertedRow.id,
+       glimpse_id: insertedRow.glimpse_id,
+       user_id: insertedRow.user_id,
+       content: insertedRow.content,
+       created_at: insertedRow.created_at,
+       profiles: Array.isArray(insertedRow.profiles)
+         ? insertedRow.profiles[0] ?? null
+         : insertedRow.profiles ?? null,
+     };
+
      setComments((prev) => {
-       const alreadyHasServer = prev.some((c) => c.id === (data as Comment).id);
+       const alreadyHasServer = prev.some((c) => c.id === serverComment.id);
        const hasOptimistic = prev.some((c) => c.id === optimisticId);
        if (alreadyHasServer) {
          // Remove any lingering optimistic entry if present.
          return prev.filter((c) => c.id !== optimisticId);
        }
        if (hasOptimistic) {
-         return prev.map((c) => (c.id === optimisticId ? (data as Comment) : c));
+         return prev.map((c) => (c.id === optimisticId ? serverComment : c));
        }
        // Fallback: append the returned comment.
-       return [...prev, data as Comment];
+       return [...prev, serverComment];
      });
    }
  }
